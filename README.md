@@ -1,3 +1,12 @@
-# hw05_final
+Установите и активируйте виртуальное окружение
+python -m venv venv
+source venv/scripts/activate
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+Установите зависимости из файла requirements.txt
+pip install -r requirements.txt
+
+В папке с файлом manage.py выполните команду:
+python3 manage.py runserver
+
+Авторы
+bkmz

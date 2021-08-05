@@ -1,3 +1,14 @@
+# Myignore
+venv/
+.vscode/
+static/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+media/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
