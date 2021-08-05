@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ author.get_full_name }}{% endblock %}
+{% block header %}{{ author.get_full_name }}{% endblock %}
+
+{% block content %}
+
+{% include "include/postauthor.html" %}
+
+  <div class="container">
+    <!-- Вывод ленты записей -->
+    {% for post in page %}
+
+      <!-- Вот он, новый include! -->
+      {% include "include/post_item.html" with post=post %}
+
+    {% endfor %}
+  </div>
+
+  <!-- Вывод паджинатора -->
+{% include "include/paginator.html" with items=page paginator=paginator%}
+
+{% endblock %} 

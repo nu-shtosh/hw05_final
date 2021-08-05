@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ author.get_full_name }}{% endblock %}
+{% block header %}{{ author.get_full_name }}{% endblock %}
+
+{% block content %}
+
+{% include "include/postauthor.html" %}
+
+  <div class="container">
+
+      {% include "include/post_item.html" with post=post %}
+
+      {% include "include/comments.html" with post=post %}
+      
+  </div>
+
+
+{% endblock %} 
