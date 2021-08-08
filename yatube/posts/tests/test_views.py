@@ -3,10 +3,10 @@ import tempfile
 
 from django import forms
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
-
 from posts.models import Group, Post, User
 
 
@@ -205,6 +205,25 @@ class PostsViewsTest(TestCase):
         response = self.authorized_client.get(self.GROUP_2_URL)
         assert not response.context['page'].has_next()
 
+    def test_index_cache(self):
+
+        texttext = 'new-post-with-cache'
+
+        self.post = Post.objects.create(
+            text=texttext,
+            author=PostsViewsTest.user,
+            group=PostsViewsTest.group,
+        )
+
+        response = self.authorized_client.get(self.HOMEPAGE_URL)
+        page = response.content.decode()
+        self.assertNotIn(self.post.text, page)
+        cache.clear()
+
+        response = self.authorized_client.get(self.HOMEPAGE_URL)
+        page = response.content.decode()
+        self.assertIn(self.post.text, page)
+
 
 class PaginatorViewsTest(TestCase):
     """URL в рамках теста."""
@@ -244,3 +263,4 @@ class PaginatorViewsTest(TestCase):
         response = self.client.get(self.PROFILE_URL)
         self.PAGE_PROFILE = len(response.context['page'])
         self.assertEqual(self.PAGE_PROFILE, 10)
+

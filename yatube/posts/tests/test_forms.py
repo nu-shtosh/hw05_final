@@ -3,7 +3,6 @@ import shutil
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-
 from posts.forms import PostForm
 from posts.models import Group, Post, User
 

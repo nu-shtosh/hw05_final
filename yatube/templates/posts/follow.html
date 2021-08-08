@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %} Подписки и подписчики {% endblock %}
+{% block header %} Подписки и подписчики {% endblock %}
+
+{% block content %}
+
+{% include "include/menu.html" with follow=True %}
+
+    <div class="container">
+      {% for post in page %}
+        {% include "include/post_item.html" with post=post %}
+        <hr>
+      {% endfor %}
+    </div>
+
+{% include "include/paginator.html" with items=page paginator=paginator%}
+
+{% endblock %} 

@@ -4,19 +4,19 @@
 
 {% block content %}
 
-{% load cache %}
-  {% cache 20 sidebar index_page %}
+  {% load cache %}
+    {% cache 20 sidebar index_page %}
 
-  <div class="container">
-    <!-- Вывод ленты записей -->
-    {% for post in page %}
-      <!-- Вот он, новый include! -->
-      {% include "include/post_item.html" with post=post %}
-    {% endfor %}
-  </div>
+    {% include "include/menu.html" with index=True %}
+    
+    <div class="container">
+      {% for post in page %}
+        {% include "include/post_item.html" with post=post %}
+        <hr>
+      {% endfor %}
+    </div>
+  {% endcache %}
 
-  <!-- Вывод паджинатора -->
-  {% include "include/paginator.html" with items=page paginator=paginator%}
+{% include "include/paginator.html" with items=page paginator=paginator%}
 
-  {% endcache %} 
 {% endblock %} 
