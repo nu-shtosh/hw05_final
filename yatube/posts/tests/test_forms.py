@@ -92,7 +92,7 @@ class PostsFormsTests(TestCase):
         self.assertEqual(Post.objects.first().text, sametext)
 
 
-def tearDownModule(): # noqa
+def tearDownModule():# noqa
     try:
         shutil.rmtree(TEST_DIR)
     except OSError:
