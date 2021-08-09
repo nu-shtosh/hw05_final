@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
-from posts.models import Group, Post, User
+from posts.models import Follow, Group, Post, User
 
 
 class PostsViewsTest(TestCase):
@@ -89,6 +89,16 @@ class PostsViewsTest(TestCase):
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
+
+    def test_add_comment(self):
+        """У comment правильный context."""
+        response = self.authorized_client.get(self.POST_URL)
+        form_fields = {
+            'text': forms.CharField,
+        }
+        for value in form_fields.items():
+            with self.subTest(value=value):
+                self.assertIn('form', response.context)
 
     def test_new_context(self):
         """У new правильный context."""
@@ -206,7 +216,7 @@ class PostsViewsTest(TestCase):
         assert not response.context['page'].has_next()
 
     def test_index_cache(self):
-
+        """Проверяем кэш index."""
         texttext = 'new-post-with-cache'
 
         self.post = Post.objects.create(
@@ -264,3 +274,65 @@ class PaginatorViewsTest(TestCase):
         self.PAGE_PROFILE = len(response.context['page'])
         self.assertEqual(self.PAGE_PROFILE, 10)
 
+
+class TestFollow(TestCase):
+    FOLLOW_URL = reverse('follow_index')
+    PROFILE_FOLLOW_URL = reverse(
+        'profile_follow',
+        kwargs={'username': 'author'})
+    PROFILE_UNFOLLOW_URL = reverse(
+        'profile_unfollow',
+        kwargs={'username': 'author'})
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_1 = User.objects.create_user(username='author')
+        cls.user_2 = User.objects.create_user(username='follower')
+        cls.user_3 = User.objects.create_user(username='unfollower')
+
+        cls.guest_client = Client()
+        cls.authorized_author = Client()
+        cls.authorized_author.force_login(cls.user_1)
+        cls.authorized_follower = Client()
+        cls.authorized_follower.force_login(cls.user_2)
+        cls.authorized_unfollower = Client()
+        cls.authorized_unfollower.force_login(cls.user_2)
+
+        cls.post = Post.objects.create(
+            text='ttext',
+            author=cls.user_1)
+
+    def test_follow(self):
+        """Проверяем что подписка работает."""
+        self.authorized_follower.get(self.PROFILE_FOLLOW_URL)
+
+        following_count = Follow.objects.filter(user=self.user_2).count()
+        followers_count = Follow.objects.filter(author=self.user_1).count()
+
+        self.assertEqual(following_count, 1)
+        self.assertEqual(followers_count, 1)
+
+    def test_unfollow(self):
+        """Проверяем что отписка работает."""
+        self.authorized_follower.get(self.PROFILE_UNFOLLOW_URL)
+
+        following_count = Follow.objects.filter(user=self.user_2).count()
+        followers_count = Follow.objects.filter(author=self.user_1).count()
+
+        self.assertEqual(following_count, 0)
+        self.assertEqual(followers_count, 0)
+
+    def test_follow_index(self):
+        """Проверяем follow index."""
+        self.authorized_follower.get(reverse(
+            'profile_follow',
+            kwargs={'username': self.user_1.username}))
+
+        response = self.authorized_follower.get(self.FOLLOW_URL)
+        object = response.context['page'][0]
+        expected_text = object.text
+        self.assertEqual(expected_text, self.post.text)
+
+        response = self.authorized_unfollower.get(self.FOLLOW_URL)
+        assert not response.context['page'].has_next()

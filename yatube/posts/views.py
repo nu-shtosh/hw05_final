@@ -1,9 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+
 from posts.forms import CommentForm, PostForm
 from posts.models import Follow, Group, Post, User
-
 from yatube.settings import PAGE_COUNT
 
 
@@ -98,15 +98,21 @@ def post_edit(request, username, post_id):
 
 @login_required
 def add_comment(request, username, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    author = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, author__username=username, id=post_id)
     form = CommentForm(request.POST or None)
-    if form.is_valid():
+    if request.method == 'POST' and form.is_valid():
         comment = form.save(commit=False)
         comment.post = post
         comment.author = request.user
         comment.save()
-        return redirect('post', username, post_id)
-    return render(request, 'include/comments.html', {'form': form})
+        return redirect('post', username=username, post_id=post_id)
+    context = {
+        'author': author,
+        'post': post,
+        'form': form,
+    }
+    return render(request, 'posts/post.html', context)
 
 
 def page_not_found(request, exception):

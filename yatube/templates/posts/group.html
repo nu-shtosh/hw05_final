@@ -3,20 +3,19 @@
 {% block header %} {{ group.title }} {% endblock %}
 
 {% block content%}
+{% include "include/menu.html" with follow=True %}
 
   <h1> {{ group.title }}</h1>
   <p> {{ group.description }}</p><br>
 
   <div class="container">
-    <!-- Вывод ленты записей -->
     {% for post in page %}
-      <!-- Вот он, новый include! -->
       {% include "include/post_item.html" with post=post %}
     {% endfor %}
     <hr>
   </div>
 
-  <!-- Вывод паджинатора -->
+
   {% include "include/paginator.html" with items=page paginator=paginator%}
 
 {% endblock %}
