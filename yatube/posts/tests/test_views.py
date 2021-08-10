@@ -7,11 +7,12 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
+
 from posts.models import Follow, Group, Post, User
 
 
 class PostsViewsTest(TestCase):
-    """URL в рамках теста."""
+    """URL/Записи в рамках теста."""
     HOMEPAGE_URL = reverse('index')
     GROUP_URL = reverse('group_posts', kwargs={'slug': 'tslug'})
     GROUP_2_URL = reverse('group_posts', kwargs={'slug': 'tslug2'})
@@ -23,6 +24,14 @@ class PostsViewsTest(TestCase):
     POST_URL = reverse('post', kwargs={
                        'username': 'tusername',
                        'post_id': '1'})
+    TEST_USER = 'tusername'
+    TEST_TITLE = 'ttitle'
+    TEST_SLUG = 'tslug'
+    TEST_DESCRIPTION = 'tdescription'
+    TEST_TEXT = 'ttext'
+    TEST_TITLE_2 = 'ttitle2'
+    TEST_SLUG_2 = 'tslug2'
+    TEST_DESCRIPTION_2 = 'tdescription2'
 
     @classmethod
     def setUpClass(cls):
@@ -30,10 +39,7 @@ class PostsViewsTest(TestCase):
         super().setUpClass()
         settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         cls.user = User.objects.create(
-            first_name='tname',
-            last_name='tlname',
-            username='tusername',
-            email='temail@yandex.ru'
+            username=PostsViewsTest.TEST_USER
         )
         cls.small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x01\x00'
@@ -48,17 +54,17 @@ class PostsViewsTest(TestCase):
             content_type='image/gif'
         )
         cls.group = Group.objects.create(
-            title='ttitle',
-            slug='tslug',
-            description='tdescription'
+            title=PostsViewsTest.TEST_TITLE,
+            slug=PostsViewsTest.TEST_SLUG,
+            description=PostsViewsTest.TEST_DESCRIPTION
         )
         cls.group_g = Group.objects.create(
-            title='ttitle2',
-            slug='tslug2',
-            description='tdescription2'
+            title=PostsViewsTest.TEST_TITLE_2,
+            slug=PostsViewsTest.TEST_SLUG_2,
+            description=PostsViewsTest.TEST_DESCRIPTION_2
         )
         cls.post = Post.objects.create(
-            text='ttext',
+            text=PostsViewsTest.TEST_TEXT,
             author=PostsViewsTest.user,
             group=PostsViewsTest.group,
             image=PostsViewsTest.uploaded
@@ -236,10 +242,13 @@ class PostsViewsTest(TestCase):
 
 
 class PaginatorViewsTest(TestCase):
-    """URL в рамках теста."""
+    """URL/Записи в рамках теста."""
     PROFILE_URL = reverse('profile', kwargs={'username': 'testusername'})
     GROUP_URL = reverse('group_posts', kwargs={'slug': 'testgroup'})
     HOMEPAGE_URL = reverse('index')
+    TEST_TITLE = 'testtitle'
+    TEST_SLUG = 'testgroup'
+    TEST_TEXT = 'testtext'
 
     @classmethod
     def setUpClass(cls):
@@ -247,12 +256,11 @@ class PaginatorViewsTest(TestCase):
         super().setUpClass()
         cls.user = User.objects.create_user(username='testusername')
         cls.group = Group.objects.create(
-            title='Тестовый заголовок',
-            slug='testgroup',
-            description='Тестовое описание текста'
+            title=PaginatorViewsTest.TEST_TITLE,
+            slug=PaginatorViewsTest.TEST_SLUG
         )
         Post.objects.bulk_create((Post(
-            text='testtext',
+            text=PaginatorViewsTest.TEST_TEXT,
             author=cls.user,
             group=cls.group)) for _ in range(13))
 
@@ -276,6 +284,7 @@ class PaginatorViewsTest(TestCase):
 
 
 class TestFollow(TestCase):
+    """URL/Записи в рамках теста."""
     FOLLOW_URL = reverse('follow_index')
     PROFILE_FOLLOW_URL = reverse(
         'profile_follow',
@@ -283,13 +292,17 @@ class TestFollow(TestCase):
     PROFILE_UNFOLLOW_URL = reverse(
         'profile_unfollow',
         kwargs={'username': 'author'})
+    TEST_USER_1 = 'author'
+    TEST_USER_2 = 'follower'
+    TEST_USER_3 = 'unfollower'
+    TEST_TEXT = 'ttext'
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user_1 = User.objects.create_user(username='author')
-        cls.user_2 = User.objects.create_user(username='follower')
-        cls.user_3 = User.objects.create_user(username='unfollower')
+        cls.user_1 = User.objects.create_user(TestFollow.TEST_USER_1)
+        cls.user_2 = User.objects.create_user(TestFollow.TEST_USER_2)
+        cls.user_3 = User.objects.create_user(TestFollow.TEST_USER_3)
 
         cls.guest_client = Client()
         cls.authorized_author = Client()
@@ -300,7 +313,7 @@ class TestFollow(TestCase):
         cls.authorized_unfollower.force_login(cls.user_2)
 
         cls.post = Post.objects.create(
-            text='ttext',
+            text=TestFollow.TEST_TEXT,
             author=cls.user_1)
 
     def test_follow(self):

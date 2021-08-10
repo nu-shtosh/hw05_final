@@ -1,10 +1,13 @@
+from http import HTTPStatus
+
 from django.test import Client, TestCase
 from django.urls import reverse
+
 from posts.models import Group, Post, User
 
 
 class PostURLTests(TestCase):
-    """URL в рамках теста."""
+    """URL/Записи в рамках теста."""
     HOMEPAGE_URL = reverse('index')
     GROUP_URL = reverse('group_posts', kwargs={'slug': 'testURLgroup'})
     PROFILE_URL = reverse('profile', kwargs={'username': 'testURLusername'})
@@ -16,31 +19,29 @@ class PostURLTests(TestCase):
                        'username': 'testURLusername',
                        'post_id': '1'})
     LOGIN_URL = reverse('login')
+    TEST_TITLE = 'testURLtitle'
+    TEST_SLUG = 'testURLgroup'
+    TEST_TEXT = 'testURLtext'
+    TEST_USER_1 = 'testURLusername'
+    TEST_USER_2 = 'u_testURLusername'
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.group = Group.objects.create(
-            title='testURLtitle',
-            slug='testURLgroup',
-            description='testURLdescription'
+            title=PostURLTests.TEST_TITLE,
+            slug=PostURLTests.TEST_SLUG,
         )
         cls.user = User.objects.create(
-            first_name='testURLname',
-            last_name='testURLlastname',
-            username='testURLusername',
-            email='testURLemail@yandex.ru'
+            username=PostURLTests.TEST_USER_1
         )
         cls.post = Post.objects.create(
-            text='testURLtext',
+            text=PostURLTests.TEST_TEXT,
             author=PostURLTests.user,
             group=PostURLTests.group
         )
         cls.u_user = User.objects.create(
-            first_name='u_testURLname',
-            last_name='u_testURLlastname',
-            username='u_testURLusername',
-            email='u_testURLemail@yandex.ru'
+            username=PostURLTests.TEST_USER_2
         )
 
     def setUp(self):
@@ -55,53 +56,53 @@ class PostURLTests(TestCase):
     def test_index_guest_client(self):
         """Страница / доступна гостевому пользователю."""
         response = self.guest_client.get(self.HOMEPAGE_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_group_guest_client(self):
         """Страница /group/testgroup/ доступна гостевому пользователю."""
         response = self.guest_client.get(self.GROUP_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_profile_guest_client(self):
         """Страница /profile/ доступна гостевому пользователю."""
         response = self.guest_client.get(self.PROFILE_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_profile_post_id_guest_client(self):
         """Страница /profile/post_id/ доступна гостевому пользователю."""
         response = self.guest_client.get(self.PROFILE_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_new_authorized_client(self):
         """Страница /new/ доступна авторизованному пользователю."""
         response = self.authorized_client_author.get(self.NEWPOST_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_new_guest_client(self):
         """Страница /new/ доступна гостевому пользователю."""
         response = self.guest_client.get(self.NEWPOST_URL)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_profile_post_id_edit_access_anonymous(self):
         """Страница /testURLusername/1/edit/ перенаправляет
         гостевого пользователя.
         """
         response = self.guest_client.get(self.POSTEDIT_URL)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_profile_post_id_edit_access_author(self):
         """Страница /testURLusername/1/edit/ доступна
         для автора.
         """
         response = self.authorized_client_author.get(self.POSTEDIT_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_profile_post_id_edit_access_not_author(self):
         """Страница /testURLusername/1/edit/ перенаправляет
         не автора.
         """
         response = self.authorized_client_not_author.get(self.POSTEDIT_URL)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_new_redirect_anonymous_on_login(self):
         """Страница /new/ перенаправит анонимного пользователя

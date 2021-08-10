@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -25,9 +27,9 @@ class AboutTestURL(TestCase):
     def test_about_author_guest_client(self):
         """Проверяем доступность author неавторизованному пользователю."""
         response = self.guest_client.get(self.AUTHOR_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_about_tech_guest_client(self):
         """Проверяем доступность tech неавторизованному пользователю."""
         response = self.guest_client.get(self.TECH_URL)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)

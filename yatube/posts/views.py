@@ -1,14 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+
 from posts.forms import CommentForm, PostForm
 from posts.models import Follow, Group, Post, User
-
 from yatube.settings import PAGE_COUNT
 
 
 def index(request):
-    posts = Post.objects.all()
+    posts = Post.objects.select_related('author').all()
     paginator = Paginator(posts, PAGE_COUNT)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -46,11 +46,9 @@ def post_view(request, username, post_id):
     author = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author__username=username, id=post_id)
     form = CommentForm(request.POST or None)
-    comments = post.post_comments.all()
     context = {
         'author': author,
         'post': post,
-        'comments': comments,
         'form': form}
     if request.user.is_authenticated and Follow.objects.filter(
             user=request.user, author=author).exists():

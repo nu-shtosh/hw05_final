@@ -74,6 +74,8 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('created',)
+        verbose_name = 'Комментарии'
+        verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text[:15]
@@ -91,6 +93,8 @@ class Follow(models.Model):
 
     class Meta:
         unique_together = ('user', 'author')
+        verbose_name = 'Подписки'
+        verbose_name_plural = 'Подписки'
 
     def __str__(self):
         return self.user and self.author

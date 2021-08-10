@@ -3,6 +3,7 @@ import shutil
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+
 from posts.forms import PostForm
 from posts.models import Group, Post, User
 
@@ -10,27 +11,27 @@ TEST_DIR = 'ttestmedia'
 
 
 class PostsFormsTests(TestCase):
-    """URL в рамках теста."""
+    """URL/Записи в рамках теста."""
     HOMEPAGE_URL = reverse('index')
     NEWPOST_URL = reverse('new_post')
+    TEST_TITLE = 'testtitleFORM'
+    TEST_SLUG = 'testslugFORM'
+    TEST_TEXT = 'testFORMtext'
+    TEST_USER = 'testFORMusername'
 
     @classmethod
     def setUpClass(cls):
         """Создание записей в БД."""
         super().setUpClass()
         cls.group = Group.objects.create(
-            title='testtitleFORM',
-            slug='testslugFORM',
-            description='testdescriptionFORM'
+            title=PostsFormsTests.TEST_TITLE,
+            slug=PostsFormsTests.TEST_SLUG,
         )
         cls.user = User.objects.create(
-            first_name='testFORMname',
-            last_name='testFORMlastname',
-            username='testFORMusername',
-            email='testFORMemail@yandex.ru'
+            username=PostsFormsTests.TEST_USER
         )
         cls.post = Post.objects.create(
-            text='testFORMtext',
+            text=PostsFormsTests.TEST_TEXT,
             author=PostsFormsTests.user,
             group=PostsFormsTests.group
         )
