@@ -1,31 +1,67 @@
 {% extends "base.html" %}
 {% block title %}Об авторе проекта{% endblock %}
+{% block header %}Об авторе проекта{% endblock %}
+
 {% block content %}
+{% load thumbnail %}
+{% include "include/menu.html" with follow=True %}
+
   <div class="row">
     <div class="col-md-3 mb-3 mt-1">
       <div class="card">
         <div class="card-body">
           <ul class="list-group list-group-flush">
+            <hr>
             <li class="list-group-item">
               <div class="h3">
-                Об авторе
+                Илья Дубенский
               </div>
             </li>
-            <li class="list-group-item">
+
+            <hr>
+            <div class="card-img">
+              <img src="/media/img/stou.jpg" width="210" height="210">
+            </div>
+            <br>
+
+            <div class="list-group-item">
               <div class="h6 text-muted">
-                Полезный короткий текст
+                Sic Parvis Magna
               </div>
-            </li>
+            </div>
+            
+          <li class="list-group-item">
+            <br>
+            <div class="h6 text-muted">
+              <a href="https://www.instagram.com/ilia.dubenskii">
+                <img src="/media/img/insta-min.png" width="30" height="30"
+                alt="Мой Инстаграм"> Instagram </a>
+                <br>
+                <br>
+              <a href="https://github.com/nu-shtosh">
+                <img src="/media/img/github.png" width="30" height="30"
+                alt='Ссылка на GitHub'> Github</a>
+            </div>
+            
+          </li>
+          <hr>
           </ul>
         </div>
       </div>
     </div>
-    <div class="col-md-9">
+
+
+    <div class="col-md-8  mt-1">
+      <div class="card">
       <div class="card-body">
+        <hr>
         <div class="card-text">
-          <p>Текст страницы "Об авторе"</p>
+          <p>Я люблю много вещей: свою семью, животных, программирование, видеоигры, велосипед, а ещё вкусно поесть. Я не ем мясо уже 2,5 года и решил собрать самые любимые meat-free рецепты.
+            Присоединяйтесь, будет вкусно!</p>
         </div>
+        <hr>
       </div>
     </div>
+  </div>
   </div>
 {% endblock %} 

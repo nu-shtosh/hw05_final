@@ -7,7 +7,6 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
-
 from posts.models import Follow, Group, Post, User
 
 
@@ -80,21 +79,6 @@ class PostsViewsTest(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.__class__.user)
-
-    def test_pages_use_correct_template(self):
-        """Проверяем URL-адрес использует соответствующий шаблон."""
-        templates_pages_names = {
-            self.HOMEPAGE_URL: 'posts/index.html',
-            self.PROFILE_URL: 'posts/profile.html',
-            self.POST_URL: 'posts/post.html',
-            self.POSTEDIT_URL: 'posts/new.html',
-            self.NEWPOST_URL: 'posts/new.html',
-            self.GROUP_URL: 'posts/group.html',
-        }
-        for reverse_name, template in templates_pages_names.items():
-            with self.subTest(reverse_name=reverse_name):
-                response = self.authorized_client.get(reverse_name)
-                self.assertTemplateUsed(response, template)
 
     def test_add_comment(self):
         """У comment правильный context."""

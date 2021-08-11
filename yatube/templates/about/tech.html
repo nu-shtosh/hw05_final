@@ -1,31 +1,39 @@
 {% extends "base.html" %}
 {% block title %}Технологии{% endblock %}
+{% block header %}Технологии{% endblock %}
 {% block content %}
+{% load thumbnail %}
+{% include "include/menu.html" with follow=True %}
   <div class="row">
     <div class="col-md-3 mb-3 mt-1">
       <div class="card">
         <div class="card-body">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <div class="h3">
-                Технологии
+              <div class="h4">
+                Что использовал:
               </div>
             </li>
             <li class="list-group-item">
               <div class="h6 text-muted">
-                Полезный короткий текст
+                Python 3 <br>
+                Django <br>
               </div>
             </li>
           </ul>
         </div>
       </div>
     </div>
-    <div class="col-md-9">
+    <div class="col-md-8  mt-1">
+      <div class="card">
       <div class="card-body">
+        <hr>
         <div class="card-text">
-          <p>Текст страницы "Об авторе"</p>
+          <p>Чтобы сделать этот сайт, я использовал полученые навыки от Яндекс.Практикума и свой компьютер.</p>
         </div>
+        <hr>
       </div>
     </div>
+  </div>
   </div>
 {% endblock %} 
