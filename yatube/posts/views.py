@@ -76,12 +76,12 @@ def new_post(request):
 def post_edit(request, username, post_id):
     profile = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id, author=profile)
-    if request.user != profile:
-        return redirect('post', username=username, post_id=post_id)
     form = PostForm(
         request.POST or None,
         files=request.FILES or None,
         instance=post)
+    if request.user != profile:
+        return redirect('post', username=username, post_id=post_id)
     if request.method == 'POST' and form.is_valid():
         form = form.save(commit=False)
         form.author = request.user

@@ -48,90 +48,14 @@ class PostURLTests(TestCase):
         self.guest_client = Client()
         # Создаем авторизованые клиенты
         self.authorized_client_author = Client()
+        self.authorized_client_author.force_login(PostURLTests.user)
         self.authorized_client_not_author = Client()
-        self.authorized_client_author.force_login(self.__class__.user)
-        self.authorized_client_not_author.force_login(self.__class__.u_user)
-
-    def test_index_guest_client(self):
-        """Страница / доступна гостевому пользователю."""
-        response = self.guest_client.get(self.HOMEPAGE_URL)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_group_guest_client(self):
-        """Страница /group/testgroup/ доступна гостевому пользователю."""
-        response = self.guest_client.get(self.GROUP_URL)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_profile_guest_client(self):
-        """Страница /profile/ доступна гостевому пользователю."""
-        response = self.guest_client.get(self.PROFILE_URL)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_profile_post_id_guest_client(self):
-        """Страница /profile/post_id/ доступна гостевому пользователю."""
-        response = self.guest_client.get(self.PROFILE_URL)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_new_authorized_client(self):
-        """Страница /new/ доступна авторизованному пользователю."""
-        response = self.authorized_client_author.get(self.NEWPOST_URL)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_new_guest_client(self):
-        """Страница /new/ доступна гостевому пользователю."""
-        response = self.guest_client.get(self.NEWPOST_URL)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
-    def test_profile_post_id_edit_access_anonymous(self):
-        """Страница /testURLusername/1/edit/ перенаправляет
-        гостевого пользователя.
-        """
-        response = self.guest_client.get(self.POSTEDIT_URL)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
-    def test_profile_post_id_edit_access_author(self):
-        """Страница /testURLusername/1/edit/ доступна
-        для автора.
-        """
-        response = self.authorized_client_author.get(self.POSTEDIT_URL)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_profile_post_id_edit_access_not_author(self):
-        """Страница /testURLusername/1/edit/ перенаправляет
-        не автора.
-        """
-        response = self.authorized_client_not_author.get(self.POSTEDIT_URL)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
-    def test_new_redirect_anonymous_on_login(self):
-        """Страница /new/ перенаправит анонимного пользователя
-        на страницу логина.
-        """
-        response = self.guest_client.get(self.NEWPOST_URL, follow=True)
-        self.assertRedirects(
-            response, '/auth/login/?next=/new/')
-
-    def test_edit_redirect_anonymous_on_login(self):
-        """Страница /testURLusername/1/edit/ перенаправит
-        анонимного пользователя на страницу логина.
-        """
-        response = self.guest_client.get(self.POSTEDIT_URL, follow=True)
-        self.assertRedirects(
-            response, '/auth/login/?next=/testURLusername/1/edit/')
-
-    def test_edit_redirect_authorized_client_not_author_on_post(self):
-        """Страница /testURLusername/1/edit/ перенаправит
-        пользователя, но не автора на страницу логина.
-        """
-        response = self.authorized_client_not_author.get(
-            self.POSTEDIT_URL,
-            follow=True
-        )
-        self.assertRedirects(
-            response, self.POST_URL)
+        self.authorized_client_not_author.force_login(PostURLTests.u_user)
 
     def test_urls_uses_correct_template(self):
-        """URL-адрес использует соответствующий шаблон."""
+        """Проверка соответствия прямых ссылок
+        и полученных через reverse(name).
+        """
         templates_url_names = {
             self.HOMEPAGE_URL: 'posts/index.html',
             self.PROFILE_URL: 'posts/profile.html',
@@ -141,6 +65,38 @@ class PostURLTests(TestCase):
             self.GROUP_URL: 'posts/group.html',
         }
         for adress, template in templates_url_names.items():
-            with self.subTest(adress=adress):
+            with self.subTest(adress=adress, template=template):
                 response = self.authorized_client_author.get(adress)
                 self.assertTemplateUsed(response, template)
+
+    def test_access_client(self):
+        """Тест проверки "разрешенных" url для
+        авторизованных/неавторизованных юзеров.
+        """
+        urls_and_clients = (
+            ('/', self.guest_client),
+            ('/testURLusername/', self.guest_client),
+            ('/testURLusername/1/', self.guest_client),
+            ('/group/testURLgroup/', self.guest_client),
+            ('/testURLusername/1/edit/', self.authorized_client_author),
+            ('/new/', self.authorized_client_author),
+        )
+        for url, client in urls_and_clients:
+            with self.subTest(url=url, client=client):
+                response = self.authorized_client_author.get(url)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_redirect_client(self):
+        """Проверка всех возможных редиректов для GET-запросов."""
+        urls_and_clients = (
+            ('/testURLusername/1/edit/', self.guest_client,
+                self.LOGIN_URL + '/?next=/' + '/testURLusername/1/edit/'),
+            ('/testURLusername/1/edit/', self.authorized_client_not_author,
+                self.LOGIN_URL + '/?next=/' + 'testURLusername/1/edit/'),
+            ('/new/', self.guest_client,
+                self.LOGIN_URL + '/?next=/' + '/new/'),
+        )
+        for url, client, redirect in urls_and_clients:
+            with self.subTest(url=url, client=client):
+                response = self.client.get(url, follow=True)
+                self.assertRedirects(response, self.LOGIN_URL + '?next=' + url)
