@@ -5,14 +5,23 @@
 {% block content%}
 {% include "include/menu.html" with follow=True %}
 
-  <h1> {{ group.title }}</h1>
-  <p> {{ group.description }}</p><br>
+
+  <div class="row justify-content-center mt-2">
+  <h2> 
+    {{ group.title }}
+  </h2>
+  </div>
+  <hr>
+  <div class="h5 text-muted">
+    {{ group.description }} 
+  </div> <br>
+  
+
 
   <div class="container">
     {% for post in page %}
       {% include "include/post_item.html" with post=post %}
     {% endfor %}
-    <hr>
   </div>
 
 
