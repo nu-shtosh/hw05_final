@@ -5,7 +5,7 @@
 {% block content %}
 
   {% load cache %}
-  {% include "include/menu.html" with index=True %}
+  {% include "include/menu.html" with index=True %} <hr>
   
   {% cache 20 sidebar index_page %}
     <div class="container">

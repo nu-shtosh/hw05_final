@@ -3,13 +3,14 @@
 {% block header %}{{ author.get_full_name }}{% endblock %}
 
 {% block content %}
-{% include "include/menu.html" with profile=True %}
+{% include "include/menu.html" with profile=True %} <hr>
 {% include "include/postauthor.html" %}
 
   <div class="container">
 
     {% for post in page %}
       {% include "include/post_item.html" with post=post %}
+      <hr>
     {% endfor %}
     
   </div>
