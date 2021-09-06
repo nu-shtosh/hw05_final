@@ -166,4 +166,4 @@ def post_delete(request, username, post_id):
     if request.method == 'POST':
         post.delete()
         return render(request, 'posts/index.html', context)
-    return render(request, 'posts/post_delete.html', context)
+    return render(request, 'posts/post-delete.html', context)
